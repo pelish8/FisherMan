@@ -1,7 +1,6 @@
 <?php
 namespace pelish8\FisherMan;
 
-use pelish8\scanner\Scanner as Scanner;
 use pelish8\FisherMan\Routes as Routes;
 
 /**
@@ -17,11 +16,6 @@ class FisherMan
      * @const string
      */
     const VERSION = '0.1';
-    
-    /**
-     * @const string
-     */
-    const XML_HTTP_REQUEST = 'XMLHttpRequest';
     
     /**
      * routes
@@ -55,6 +49,7 @@ class FisherMan
      */
     protected $isAjax = null;
     
+    protected $methods = ['GET', 'POST', 'PUT', 'DELETE', 'OPTION'];
     /**
      * constructor
      *
@@ -80,25 +75,19 @@ class FisherMan
     public function run()
     {
         $method = $_SERVER['REQUEST_METHOD'];
+
+        if (!in_array($method, $this->methods)) {
+            // trow error unsuported http method
+            $this->pageNotFound();
+            return;
+        }
+        
         if (!$this->isUrlExist()) {
             $this->pageNotFound();
             return;
         }
         
-        switch ($method) {
-            case 'GET':
-                $this->doGet();
-                break;
-            case 'POST':
-                $this->doPost();
-                break;
-            case 'PUT':
-                $this->doPut();
-                break;
-            case 'DELETE':
-                $this->doPut();
-                break;
-        }
+        $this->doRequest(strtolower($method));
     }
     
     /**
@@ -186,60 +175,20 @@ class FisherMan
         
         return $uri;
     }
+
     /**
-     * Perform GET method.
+     * Perform http method.
      */
-    protected function doGet()
+    protected function doRequest($method)
     {
         $instance = new $this->instance();
-        if (!method_exists($this->instance, 'get')) {    
+        if (!method_exists($this->instance, $method)) {
             $this->pageNotFound();
             return;
         }
         
-        $instance->get($this->urlParams, $this);
-    }
-    
-    /**
-     * Perform POST method.
-     */
-    protected function doPost()
-    {
-        $instance = new $this->instance();
-        if (!method_exists($this->instance, 'post')) {    
-            $this->pageNotFound();
-            return;
-        }
+        $instance->$method($this->urlParams, $this);
         
-        $instance->post($this->urlParams, $this);
-    }
-    
-    /**
-     * Perform PUT method.
-     */
-    protected function doPut()
-    {
-        $instance = new $this->instance();
-        if (!method_exists($this->instance, 'put')) {    
-            $this->pageNotFound();
-            return;
-        }
-        
-        $instance->put($this->urlParams, $this);
-    }
-    
-    /**
-     * Perform DELETE method.
-     */
-    protected function doDelete()
-    {
-        $instance = new $this->instance();
-        if (!method_exists($this->instance, 'delete')) {
-            $this->pageNotFound();
-            return;
-        }
-        
-        $instance->delete($this->urlParams, $this);
     }
     
     /**
@@ -251,7 +200,7 @@ class FisherMan
     public function isAjax()
     {
         if ($this->isAjax === null) {
-            $this->isAjax = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === self::XML_HTTP_REQUEST);
+            $this->isAjax = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest');
         }
         return $this->isAjax;
     }
@@ -271,5 +220,15 @@ class FisherMan
         }
         header('HTTP/1.0 404 Not Found');
         echo '<h1>404 Page Not Found.</h1>';
+    }
+    
+    /**
+     * Register custom HTTP method types.
+     *
+     * @access protected
+     */
+    public function register(array $newMethods)
+    {
+        $this->methods = array_merge($this->methods, $newMethods);
     }
 }
