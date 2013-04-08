@@ -113,6 +113,8 @@ class FisherMan
     protected function compareUrlAndUri()
     {
         $out = false;
+        $instance = null;
+        $counter = 0;
         $uriArray = explode('/', $this->uri());
         $uriLength = count($uriArray);
         
@@ -126,21 +128,24 @@ class FisherMan
             $pathArray = explode('/', $path);
             
             $pathLength = count($pathArray);
-            $instance = null;
             
+            $instance = $class;
             if ($pathLength <= $uriLength) {
-                for ($i = 0; $i < $pathLength; $i++) {
-                    if ($pathArray[$i] !== $uriArray[$i]) {
+                for (; $counter < $pathLength; $counter++) {
+                    if ($pathArray[$counter] !== $uriArray[$counter]) {
                         $out = false;
                         break;
                     }
-                    $instance = $class;
                     $out = true;
                 }
             }
+            
+            if ($out) {
+                break;
+            }
         }
         
-        $this->urlParams = array_slice($uriArray, $i);
+        $this->urlParams = array_slice($uriArray, $counter);
         $this->instance = $instance;
         
         return $out;
@@ -230,5 +235,19 @@ class FisherMan
     public function register(array $newMethods)
     {
         $this->methods = array_merge($this->methods, $newMethods);
+    }
+    
+    protected function createPageObject($path, $pageObject)
+    {
+        // this is test option need additional investigation
+        if (function_exists('apc_fetch')) {
+            $data = apc_fetch($path);
+            if ($data === false) {
+                apc_add($path, $data = new $pageObject);
+            }
+            return $data;
+        } else {
+            return new $pageObject();
+        }
     }
 }
