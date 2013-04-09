@@ -15,7 +15,7 @@ class FisherMan
     /**
      * @const string
      */
-    const VERSION = '0.1';
+    const VERSION = '0.1.1';
     
     /**
      * routes
@@ -54,7 +54,7 @@ class FisherMan
      * constructor
      *
      */
-    public function __construct(array $urls = null, $autoLoad = true)
+    public function __construct(array $urls = null, $autoLoad = false)
     {
         if (!isset($urls)) {
             return;
@@ -86,8 +86,7 @@ class FisherMan
             $this->pageNotFound();
             return;
         }
-        
-        $this->doRequest(strtolower($method));
+        $this->doRequest($method);
     }
     
     /**
@@ -118,7 +117,7 @@ class FisherMan
         $uriArray = explode('/', $this->uri());
         $uriLength = count($uriArray);
         
-        foreach ($this->routes as $route => $class) {
+        foreach ($this->routes as $route => $callBack) {
             $pos = strpos($route, '/:');
             if ($pos === false) {
                 continue;
@@ -129,7 +128,7 @@ class FisherMan
             
             $pathLength = count($pathArray);
             
-            $instance = $class;
+            $instance = $callBack;
             if ($pathLength <= $uriLength) {
                 for (; $counter < $pathLength; $counter++) {
                     if ($pathArray[$counter] !== $uriArray[$counter]) {
@@ -186,6 +185,17 @@ class FisherMan
      */
     protected function doRequest($method)
     {
+        if (is_array($this->instance)) {
+            
+            if ($this->instance[0] !== $method) {
+                $this->pageNotFound();
+                return;    
+            }
+            $f = $this->instance[1];
+            $f($this->urlParams, $this);
+            return;
+        }
+        
         $instance = new $this->instance();
         if (!method_exists($this->instance, $method)) {
             $this->pageNotFound();
@@ -224,7 +234,7 @@ class FisherMan
             return;
         }
         header('HTTP/1.0 404 Not Found');
-        echo '<h1>404 Page Not Found.</h1>';
+        echo '<h1>404 Page Not Found.</h1><p>The page you are looking for could not be found.</p>';
     }
     
     /**
@@ -234,9 +244,79 @@ class FisherMan
      */
     public function register(array $newMethods)
     {
-        $this->methods = array_merge($this->methods, $newMethods);
+        $methods = array_map(function ($a) {
+            return strtoupper($a);
+        }, $newMethods);
+
+        $this->methods = array_unique(array_merge($this->methods, $methods)); // @TODO find more efficient way
     }
     
+    /**
+     *
+     *
+     *
+     */
+    public function map($method, $route, $function)
+    {
+        $this->routes[$route] = [strtoupper($method), $function];
+        $this->register([$method]);
+    }
+    
+    /**
+     *
+     *
+     *
+     */
+    public function get($route, $function)
+    {
+        $this->map('GET', $route, $function);
+    }
+    
+    /**
+     *
+     *
+     *
+     */
+    public function post($route, $function)
+    {
+        $this->map('POST', $route, $function);
+    }
+    
+    /**
+     *
+     *
+     *
+     */
+    public function put($route, $function)
+    {
+        $this->map('PUT', $route, $function);
+    }
+    
+    /**
+     *
+     *
+     *
+     */
+    public function delete($route, $function)
+    {
+        $this->map('DELETE', $route, $function);
+    }
+    
+    /**
+     *
+     *
+     *
+     */
+    public function options($route, $function)
+    {
+        $this->map('OPTIONS', $route, $function);
+    }
+    
+    /**
+     *
+     *
+     *
+     */
     protected function createPageObject($path, $pageObject)
     {
         // this is test option need additional investigation
