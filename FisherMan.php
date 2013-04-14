@@ -223,9 +223,9 @@ class FisherMan
     /**
      * 404 page
      *
-     * @access protected
+     * @access public
      */
-    protected function pageNotFound()
+    public function pageNotFound()
     {
         if (array_key_exists(404, $this->routes)) {
             $this->instance = $this->routes[404];
