@@ -6,6 +6,8 @@ class Logger {
 
     protected static $instance = null;
 
+    protected $path = null;
+
     protected function __construct()
     {
 
@@ -23,5 +25,19 @@ class Logger {
     public function test()
     {
         echo 'Test logger!';
+    }
+
+    public function setPath($path)
+    {
+        $this->path = $path;
+    }
+
+    public function path()
+    {
+        if ($this->path === null) {
+            $this->path = 
+        }
+
+        return $this->path;
     }
 }
