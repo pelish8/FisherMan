@@ -16,7 +16,7 @@ class FisherMan
      * @const string
      */
     const VERSION = '0.1.1';
-    
+
     /**
      * routes
      *
@@ -24,7 +24,7 @@ class FisherMan
      * @access protected
      */
     protected $routes = null;
-    
+
     /**
      * request uri
      *
@@ -32,7 +32,7 @@ class FisherMan
      * @access protected
      */
     protected $uri = null;
-    
+
     /**
      * Variable that will pass as first parameter to request method.
      *
@@ -40,7 +40,7 @@ class FisherMan
      * @access protected
      */
     protected $urlParams = [];
-    
+
     /**
      * is ajax call
      *
@@ -48,7 +48,7 @@ class FisherMan
      * @access protected
      */
     protected $isAjax = null;
-    
+
     protected $methods = ['GET', 'POST', 'PUT', 'DELETE', 'OPTION'];
     /**
      * constructor
@@ -59,14 +59,14 @@ class FisherMan
         if (!isset($urls)) {
             return;
         }
-        
+
         $this->routes = $urls;
-        
+
         if ($autoLoad) {
             $this->run();
         }
     }
-    
+
     /**
      * Execute script.
      *
@@ -81,29 +81,29 @@ class FisherMan
             $this->pageNotFound();
             return;
         }
-        
+
         if (!$this->isUrlExist()) {
             $this->pageNotFound();
             return;
         }
         $this->doRequest($method);
     }
-    
+
     /**
      * Find if page exists.
-     * 
+     *
      * @return bool
      */
     protected function isUrlExist()
-    {   
+    {
         if (array_key_exists($this->uri(), $this->routes)) {
             $this->instance = $this->routes[$this->uri()];
             return true;
         }
-        
+
         return $this->compareUrlAndUri();
     }
-    
+
     /**
      * Return true if Url exists.
      *
@@ -116,18 +116,18 @@ class FisherMan
         $counter = 0;
         $uriArray = explode('/', $this->uri());
         $uriLength = count($uriArray);
-        
+
         foreach ($this->routes as $route => $callBack) {
             $pos = strpos($route, '/:');
             if ($pos === false) {
                 continue;
             }
-            
+
             $path = substr($route, 0, $pos);
             $pathArray = explode('/', $path);
-            
+
             $pathLength = count($pathArray);
-            
+
             $instance = $callBack;
             if ($pathLength <= $uriLength) {
                 for (; $counter < $pathLength; $counter++) {
@@ -138,18 +138,18 @@ class FisherMan
                     $out = true;
                 }
             }
-            
+
             if ($out) {
                 break;
             }
         }
-        
+
         $this->urlParams = array_slice($uriArray, $counter);
         $this->instance = $instance;
-        
+
         return $out;
     }
-    
+
     /**
      * Request uri.
      *
@@ -160,10 +160,10 @@ class FisherMan
         if ($this->uri === null) {
             $this->uri = $this->findUriString();
         }
-        
+
         return $this->uri;
     }
-    
+
     /**
      * Request uri.
      *
@@ -176,7 +176,7 @@ class FisherMan
         } else {
             $uri = !empty($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/'; // mode_rewrite
         }
-        
+
         return $uri;
     }
 
@@ -186,26 +186,26 @@ class FisherMan
     protected function doRequest($method)
     {
         if (is_array($this->instance)) {
-            
+
             if ($this->instance[0] !== $method) {
                 $this->pageNotFound();
-                return;    
+                return;
             }
             $f = $this->instance[1];
             $f($this->urlParams, $this);
             return;
         }
-        
+
         $instance = new $this->instance();
         if (!method_exists($this->instance, $method)) {
             $this->pageNotFound();
             return;
         }
-        
+
         $instance->$method($this->urlParams, $this);
-        
+
     }
-    
+
     /**
      * check if request is ajax
      *
@@ -219,7 +219,7 @@ class FisherMan
         }
         return $this->isAjax;
     }
-    
+
     /**
      * 404 page
      *
@@ -236,7 +236,7 @@ class FisherMan
         header('HTTP/1.0 404 Not Found');
         echo '<h1>404 Page Not Found.</h1><p>The page you are looking for could not be found.</p>';
     }
-    
+
     /**
      * Register custom HTTP method types.
      *
@@ -250,7 +250,7 @@ class FisherMan
 
         $this->methods = array_unique(array_merge($this->methods, $methods)); // @TODO find more efficient way
     }
-    
+
     /**
      *
      *
@@ -261,7 +261,7 @@ class FisherMan
         $this->routes[$route] = [strtoupper($method), $function];
         $this->register([$method]);
     }
-    
+
     /**
      *
      *
@@ -271,7 +271,7 @@ class FisherMan
     {
         $this->map('GET', $route, $function);
     }
-    
+
     /**
      *
      *
@@ -281,7 +281,7 @@ class FisherMan
     {
         $this->map('POST', $route, $function);
     }
-    
+
     /**
      *
      *
@@ -291,7 +291,7 @@ class FisherMan
     {
         $this->map('PUT', $route, $function);
     }
-    
+
     /**
      *
      *
@@ -301,7 +301,7 @@ class FisherMan
     {
         $this->map('DELETE', $route, $function);
     }
-    
+
     /**
      *
      *
@@ -311,7 +311,7 @@ class FisherMan
     {
         $this->map('OPTIONS', $route, $function);
     }
-    
+
     /**
      *
      *
