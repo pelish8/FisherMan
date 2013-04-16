@@ -61,13 +61,13 @@ $www = new FisherMan($urls);
 // $app->get('hello/:firstName/:lastName', function (array $urlParams, $fisherMan) {
 //     echo 'Hello ' . $urlParams['firstName'] . ' ' . $urlParams['lastName'];
 // });
-// 
+//
 // $app->post('hello/:firstName/:lastName', function (array $urlParams, $fisherMan) {
 //     if (!isset($_POST)) {
 //         return false;
 //     }
 // });
-// 
+//
 // $app->run();
 
 

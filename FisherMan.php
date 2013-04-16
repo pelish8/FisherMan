@@ -2,6 +2,9 @@
 namespace pelish8\FisherMan;
 
 use pelish8\FisherMan\Routes as Routes;
+use pelish8\FisherMan\Logger as Logger;
+use pelish8\FisherMan\Enviroment as Environment;
+
 
 /**
  * FisherMan
@@ -56,6 +59,14 @@ class FisherMan
      */
     public function __construct(array $urls = null, $autoLoad = false)
     {
+        $logger = Logger::sharedLogger();
+
+        $logger->test();
+
+        $env = Environment::sharedEnviroment();
+
+        $env->test();
+
         if (!isset($urls)) {
             return;
         }

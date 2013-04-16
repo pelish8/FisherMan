@@ -13,13 +13,13 @@ class Logger {
 
     }
 
-    public static sharedLogger()
+    public static function sharedLogger()
     {
-        if (static::instance === null) {
-            static::instance = new static();
+        if (static::$instance === null) {
+            static::$instance = new static;
         }
 
-        return static::instance;
+        return static::$instance;
     }
 
     public function test()
@@ -35,7 +35,7 @@ class Logger {
     public function path()
     {
         if ($this->path === null) {
-            $this->path = 
+            // $this->path =
         }
 
         return $this->path;
