@@ -22,11 +22,6 @@ class Logger {
         return static::$instance;
     }
 
-    public function test()
-    {
-        echo 'Test logger!';
-    }
-
     public function setPath($path)
     {
         $this->path = $path;

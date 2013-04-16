@@ -3,7 +3,7 @@ namespace pelish8\FisherMan;
 
 use pelish8\FisherMan\Routes as Routes;
 use pelish8\FisherMan\Logger as Logger;
-use pelish8\FisherMan\Enviroment as Environment;
+use pelish8\FisherMan\Environment as Environment;
 
 
 /**
@@ -63,7 +63,7 @@ class FisherMan
 
         $logger->test();
 
-        $env = Environment::sharedEnviroment();
+        $env = Environment::sharedEnvironment();
 
         $env->test();
 

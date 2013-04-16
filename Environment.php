@@ -2,7 +2,7 @@
 
 namespace pelish8\FisherMan;
 
-class Enviroment
+class Environment
 {
 
     /**
@@ -47,7 +47,7 @@ class Enviroment
      *
      *
      */
-    public static function sharedEnviroment()
+    public static function sharedEnvironment()
     {
         if (static::$instance === null) {
             static::$instance = new static;
@@ -90,10 +90,5 @@ class Enviroment
     public function route() // uri
     {
         return $this->route; // uri
-    }
-
-    public function test()
-    {
-        echo 'Test Enviroment';
     }
 }
