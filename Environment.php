@@ -2,6 +2,13 @@
 
 namespace pelish8\FisherMan;
 
+/**
+ * FisherMan
+ *
+ * @package FisherMan
+ * @author  pelish8
+ * @since   0.1
+ */
 class Environment
 {
 
@@ -15,7 +22,7 @@ class Environment
      *
      *
      */
-    protected $defaultLogPath = 'default/Path';
+    protected $defaultLogPath = '';
 
     /**
      *
@@ -27,27 +34,62 @@ class Environment
      *
      *
      */
+    protected $port = null;
+
+    /**
+     *
+     *
+     */
     protected $method = null;
 
     /**
      *
      *
      */
-    protected $route = null; // uri
+    protected $uri = null; // uri
 
     /**
      *
      *
      */
-    protected function __construt()
+    protected $host = null; // uri
+
+    /**
+     *
+     *
+     */
+    protected $serverName = null; // uri
+
+    /**
+     *
+     *
+     */
+    protected function __construct()
     {
+        // set method
+        $this->method = $_SERVER['REQUEST_METHOD'];
+
+        if (strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']) === 0) {
+            $this->uri = !empty($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '/'; // home
+        } else {
+            $this->uri = !empty($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/'; // mode_rewrite
+        }
+
+        $this->ip = $_SERVER['REMOTE_ADDR'];
+
+        $this->port = $_SERVER['REMOTE_PORT'];
+
+        $this->host = $_SERVER['HTTP_HOST'];
+
+        $this->serverName = $_SERVER['SERVER_NAME'];
+
     }
 
     /**
      *
      *
      */
-    public static function sharedEnvironment()
+    public static function sharedEnvironment($root = null)
     {
         if (static::$instance === null) {
             static::$instance = new static;
@@ -87,8 +129,35 @@ class Environment
      *
      *
      */
-    public function route() // uri
+    public function uri()
     {
-        return $this->route; // uri
+        return $this->uri;
+    }
+
+    /**
+     *
+     *
+     */
+    public function port()
+    {
+        return $this->port;
+    }
+
+    /**
+     *
+     *
+     */
+    public function host()
+    {
+        return $this->host;
+    }
+
+    /**
+     *
+     *
+     */
+    public function serverName()
+    {
+        return $this->serverName;
     }
 }

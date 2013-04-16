@@ -1,10 +1,6 @@
 <?php
 namespace pelish8\FisherMan;
 
-use pelish8\FisherMan\Routes as Routes;
-use pelish8\FisherMan\Logger as Logger;
-use pelish8\FisherMan\Environment as Environment;
-
 
 /**
  * FisherMan
@@ -29,14 +25,6 @@ class FisherMan
     protected $routes = null;
 
     /**
-     * request uri
-     *
-     * @var string
-     * @access protected
-     */
-    protected $uri = null;
-
-    /**
      * Variable that will pass as first parameter to request method.
      *
      * @var array
@@ -52,20 +40,39 @@ class FisherMan
      */
     protected $isAjax = null;
 
+    /**
+     * standard HTTP methods
+     *
+     * @var array
+     * @access protected
+     */
     protected $methods = ['GET', 'POST', 'PUT', 'DELETE', 'OPTION'];
+
+    /**
+     * Environment object
+     *
+     * @var \FisherMan\Environment
+     * @access protected
+     */
+    protected $env = null;
+
+    /**
+     * Environment object
+     *
+     * @var \FisherMan\Logger
+     * @access protected
+     */
+    protected $logger = null;
+
     /**
      * constructor
      *
      */
     public function __construct(array $urls = null, $autoLoad = false)
     {
-        $logger = Logger::sharedLogger();
+        $this->logger = \pelish8\FisherMan\Logger::sharedLogger();
 
-        $logger->test();
-
-        $env = Environment::sharedEnvironment();
-
-        $env->test();
+        $this->env = \pelish8\FisherMan\Environment::sharedEnvironment();
 
         if (!isset($urls)) {
             return;
@@ -85,7 +92,8 @@ class FisherMan
      */
     public function run()
     {
-        $method = $_SERVER['REQUEST_METHOD'];
+        // replace with Environment
+        $method = $this->env->method();
 
         if (!in_array($method, $this->methods)) {
             // trow error unsuported http method
@@ -107,8 +115,10 @@ class FisherMan
      */
     protected function isUrlExist()
     {
-        if (array_key_exists($this->uri(), $this->routes)) {
-            $this->instance = $this->routes[$this->uri()];
+        $uri = $this->env->uri();
+        
+        if (array_key_exists($uri, $this->routes)) {
+            $this->instance = $this->routes[$uri];
             return true;
         }
 
@@ -125,7 +135,7 @@ class FisherMan
         $out = false;
         $instance = null;
         $counter = 0;
-        $uriArray = explode('/', $this->uri());
+        $uriArray = explode('/', $this->env->uri());
         $uriLength = count($uriArray);
 
         foreach ($this->routes as $route => $callBack) {
@@ -159,36 +169,6 @@ class FisherMan
         $this->instance = $instance;
 
         return $out;
-    }
-
-    /**
-     * Request uri.
-     *
-     * @return string
-     */
-    protected function uri()
-    {
-        if ($this->uri === null) {
-            $this->uri = $this->findUriString();
-        }
-
-        return $this->uri;
-    }
-
-    /**
-     * Request uri.
-     *
-     * @return string
-     */
-    protected function findUriString()
-    {
-        if (strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']) === 0) {
-            $uri = !empty($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '/'; // home
-        } else {
-            $uri = !empty($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/'; // mode_rewrite
-        }
-
-        return $uri;
     }
 
     /**

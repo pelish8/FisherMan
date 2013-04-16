@@ -1,0 +1,17 @@
+{
+    "name": "pelish8/fisher-man",
+    "description": "PHP micro framework.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Aleksandar Stevic",
+            "email": "pelish8@gmail.com"
+        }
+    ],
+    "require": {
+
+    },
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*"
+    }
+}
