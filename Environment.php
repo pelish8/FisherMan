@@ -94,7 +94,7 @@ class Environment
         if (static::$instance === null) {
             static::$instance = new static;
         }
-
+        
         return static::$instance;
     }
 
@@ -159,5 +159,30 @@ class Environment
     public function serverName()
     {
         return $this->serverName;
+    }
+
+    /**
+     *
+     *
+     */
+    public static function mock($array)
+    {
+        $inc = new static();
+
+        $inc->ip = $array['ip'];
+
+        $inc->uri = $array['uri'];
+
+        $inc->host = $array['host'];
+
+        $inc->port = $array['port'];
+
+        $inc->serverName = $array['serverName'];
+
+        $inc->method = $array['method'];
+
+        static::$instance = $inc;
+
+        return static::$instance;
     }
 }

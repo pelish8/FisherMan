@@ -65,6 +65,13 @@ class FisherMan
     protected $logger = null;
 
     /**
+     *
+     *
+     *
+     */
+    protected $route = null;
+
+    /**
      * constructor
      *
      */
@@ -116,9 +123,10 @@ class FisherMan
     protected function isUrlExist()
     {
         $uri = $this->env->uri();
-        
+
         if (array_key_exists($uri, $this->routes)) {
             $this->instance = $this->routes[$uri];
+            $this->route = $uri;
             return true;
         }
 
@@ -161,6 +169,7 @@ class FisherMan
             }
 
             if ($out) {
+                $this->route = $route;
                 break;
             }
         }
