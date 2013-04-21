@@ -75,6 +75,10 @@ class Environment
             $this->uri = !empty($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/'; // mode_rewrite
         }
 
+        if (substr($this->uri, -1) === '/') {
+            $this->uri = substr($this->uri, 0, strlen($this->uri) - 1);
+        }
+
         $this->ip = $_SERVER['REMOTE_ADDR'];
 
         $this->port = $_SERVER['REMOTE_PORT'];
@@ -94,7 +98,7 @@ class Environment
         if (static::$instance === null) {
             static::$instance = new static;
         }
-        
+
         return static::$instance;
     }
 

@@ -31,14 +31,13 @@ class Test extends PHPUnit_Framework_TestCase
 {
     public function testGetWithOutUrlParams()
     {
-        $fm = new FMTest();
-        $fm->setEnv('/index');
 
-        $fm->get('/index', function ($params, $fm) {
-            // $this->assertEquals(2, count($params));
-        });
-        $this->assertEquals('/index', $fm->matchPath());
-        // $fm->run();
+        $route = new \pelish8\FisherMan\Route('GET', '/index', function (){});
+
+        var_dump($route->responseToRequest('/index'));
+
+        $this->assertTrue($route->responseToRequest('/index'));
+
     }
 
     public function testGetWithUrlParams()

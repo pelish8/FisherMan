@@ -22,7 +22,19 @@ class FisherMan
      * @var array
      * @access protected
      */
-    protected $routes = null;
+    protected $routes = [
+        'GET' => [],
+        'POST' => [],
+        'PUT' => [],
+        'DELETE' => [],
+        'OPTION' => []
+    ];
+
+    /**
+     *
+     *
+     */
+    protected $requestRoutes = null;
 
     /**
      * Variable that will pass as first parameter to request method.
@@ -85,7 +97,7 @@ class FisherMan
             return;
         }
 
-        $this->routes = $urls;
+        // $this->routes = $urls;
 
         if ($autoLoad) {
             $this->run();
@@ -107,11 +119,13 @@ class FisherMan
             $this->pageNotFound();
             return;
         }
+        $this->requestRoutes = $this->routes[$method];
 
         if (!$this->isUrlExist()) {
             $this->pageNotFound();
             return;
         }
+
         $this->doRequest($method);
     }
 
@@ -123,61 +137,22 @@ class FisherMan
     protected function isUrlExist()
     {
         $uri = $this->env->uri();
+        $potentialRoutes = null;
 
-        if (array_key_exists($uri, $this->routes)) {
-            $this->instance = $this->routes[$uri];
-            $this->route = $uri;
+        foreach ($this->requestRoutes as $route) {
+            // echo $route->route . '<br>';
+            if ($route->responseToRequest($uri)) {
+                $potentialRoutes = $route->isMorePlausibleThan($potentialRoutes);
+            }
+
+        }
+        var_dump($potentialRoutes);
+        if ($potentialRoutes) {
+            $this->route = $potentialRoutes;
             return true;
+        } else {
+            return false;
         }
-
-        return $this->compareUrlAndUri();
-    }
-
-    /**
-     * Return true if Url exists.
-     *
-     * @return bool
-     */
-    protected function compareUrlAndUri()
-    {
-        $out = false;
-        $instance = null;
-        $counter = 0;
-        $uriArray = explode('/', $this->env->uri());
-        $uriLength = count($uriArray);
-
-        foreach ($this->routes as $route => $callBack) {
-            $pos = strpos($route, '/:');
-            if ($pos === false) {
-                continue;
-            }
-
-            $path = substr($route, 0, $pos);
-            $pathArray = explode('/', $path);
-
-            $pathLength = count($pathArray);
-
-            $instance = $callBack;
-            if ($pathLength <= $uriLength) {
-                for (; $counter < $pathLength; $counter++) {
-                    if ($pathArray[$counter] !== $uriArray[$counter]) {
-                        $out = false;
-                        break;
-                    }
-                    $out = true;
-                }
-            }
-
-            if ($out) {
-                $this->route = $route;
-                break;
-            }
-        }
-
-        $this->urlParams = array_slice($uriArray, $counter);
-        $this->instance = $instance;
-
-        return $out;
     }
 
     /**
@@ -185,25 +160,12 @@ class FisherMan
      */
     protected function doRequest($method)
     {
-        if (is_array($this->instance)) {
-
-            if ($this->instance[0] !== $method) {
-                $this->pageNotFound();
-                return;
-            }
-            $f = $this->instance[1];
-            $f($this->urlParams, $this);
-            return;
+        $route = $this->route;
+        if ($route->isFunction) {
+            $f = $route->callBack;
+            $f($route->parameters, $this);
         }
-
-        $instance = new $this->instance();
-        if (!method_exists($this->instance, $method)) {
-            $this->pageNotFound();
-            return;
-        }
-
-        $instance->$method($this->urlParams, $this);
-
+        return;
     }
 
     /**
@@ -244,8 +206,14 @@ class FisherMan
      */
     public function register(array $newMethods)
     {
+
         $methods = array_map(function ($a) {
-            return strtoupper($a);
+            $method = strtoupper($a);
+
+            if (!array_key_exists($method, $this->routes)) {
+                $this->routes[$method] = [];
+                echo 1;
+            }
         }, $newMethods);
 
         $this->methods = array_unique(array_merge($this->methods, $methods)); // @TODO find more efficient way
@@ -258,8 +226,12 @@ class FisherMan
      */
     public function map($method, $route, $function)
     {
-        $this->routes[$route] = [strtoupper($method), $function];
+        $method = strtoupper($method);
         $this->register([$method]);
+        $this->routes[$method][] = new \pelish8\FisherMan\Route($method, $route, $function);
+        #if DEV
+            // var_dump($this->routes);
+        #indif
     }
 
     /**
