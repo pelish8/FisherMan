@@ -146,7 +146,7 @@ class FisherMan
             }
 
         }
-        var_dump($potentialRoutes);
+
         if ($potentialRoutes) {
             $this->route = $potentialRoutes;
             return true;
@@ -212,7 +212,6 @@ class FisherMan
 
             if (!array_key_exists($method, $this->routes)) {
                 $this->routes[$method] = [];
-                echo 1;
             }
         }, $newMethods);
 

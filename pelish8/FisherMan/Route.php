@@ -12,8 +12,9 @@ class Route
     protected $method = null;
 
     /**
+     * route without params
      *
-     *
+     * @var string
      */
     public $baseRoute = null;
 
