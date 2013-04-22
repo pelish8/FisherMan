@@ -69,15 +69,7 @@ class Environment
         // set method
         $this->method = $_SERVER['REQUEST_METHOD'];
 
-        if (strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']) === 0) {
-            $this->uri = !empty($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '/'; // home
-        } else {
-            $this->uri = !empty($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/'; // mode_rewrite
-        }
-
-        if (substr($this->uri, -1) === '/') {
-            $this->uri = substr($this->uri, 0, strlen($this->uri) - 1);
-        }
+        $this->uri = $this->prepareUri();
 
         $this->ip = $_SERVER['REMOTE_ADDR'];
 
@@ -86,7 +78,6 @@ class Environment
         $this->host = $_SERVER['HTTP_HOST'];
 
         $this->serverName = $_SERVER['SERVER_NAME'];
-
     }
 
     /**
@@ -100,6 +91,31 @@ class Environment
         }
 
         return static::$instance;
+    }
+
+    /**
+     *
+     *
+     */
+    protected function prepareUri()
+    {
+        if (strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']) === 0) {
+            $uri = @$_SERVER['PATH_INFO']; //@todo better implementation
+        } else {
+            $uri = $_SERVER['REQUEST_URI']; // mode_rewrite
+        }
+
+        $len = strlen($uri);
+
+        if ($uri === '/' || $len === 0) { // @todo test with mod_rewrite
+            return '/';
+        }
+
+        if (substr($uri, -1) === '/') {
+            return substr($uri, 0, $len - 1);
+        }
+
+        return $uri;
     }
 
     /**

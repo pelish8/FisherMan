@@ -1,6 +1,12 @@
 <?php
 namespace pelish8\FisherMan;
 
+/* FisherMan
+ *
+ * @package FisherMan
+ * @author  pelish8
+ * @since   0.1
+ */
 
 class Route
 {

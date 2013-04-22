@@ -7,7 +7,7 @@ namespace pelish8\FisherMan;
  *
  * @package FisherMan
  * @author  pelish8
- * @since   0.1
+ * @since   0.1.1
  */
 class FisherMan
 {
